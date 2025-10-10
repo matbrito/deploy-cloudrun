@@ -104,7 +104,6 @@ export async function run(): Promise<void> {
     const gcloudVersion = await computeGcloudVersion(getInput('gcloud_version'));
     const gcloudComponent = presence(getInput('gcloud_component')); // Cloud SDK component version
     const envVars = getInput('env_vars'); // String of env vars KEY=VALUE,...
-    const envVarsFile = getInput('env_vars_file'); // File that is a string of env vars KEY=VALUE,...
     const envVarsUpdateStrategy = getInput('env_vars_update_strategy') || 'merge';
     const secrets = parseKVString(getInput('secrets')); // String of secrets KEY=VALUE,...
     const secretsUpdateStrategy = getInput('secrets_update_strategy') || 'merge';
@@ -137,17 +136,6 @@ export async function run(): Promise<void> {
     const exclusiveKindInputs = [service, job, workerPool].filter(Boolean);
     if (exclusiveKindInputs.length > 1) {
       throw new Error('Only one of `service`, `job`, or `worker_pool` inputs can be set.');
-    }
-
-    // Deprecation notices
-    if (envVarsFile) {
-      logWarning(
-        `The "env_vars_file" input is deprecated and will be removed in a ` +
-          `future major release. To source values from a file, read the file ` +
-          `in a separate GitHub Actions step and set the contents as an output. ` +
-          `Alternatively, there are many community actions that automate ` +
-          `reading files.`,
-      );
     }
 
     // Validate gcloud component input
@@ -198,7 +186,7 @@ export async function run(): Promise<void> {
       }
 
       // Set optional flags from inputs
-      setEnvVarsFlags(deployCmd, envVars, envVarsFile, envVarsUpdateStrategy);
+      setEnvVarsFlags(deployCmd, envVars, envVarsUpdateStrategy);
       setSecretsFlags(deployCmd, secrets, secretsUpdateStrategy);
 
       if (wait) {
@@ -232,7 +220,7 @@ export async function run(): Promise<void> {
       }
 
       // Set optional flags from inputs
-      setEnvVarsFlags(deployCmd, envVars, envVarsFile, envVarsUpdateStrategy);
+      setEnvVarsFlags(deployCmd, envVars, envVarsUpdateStrategy);
       setSecretsFlags(deployCmd, secrets, secretsUpdateStrategy);
 
       // Compile the labels
@@ -251,7 +239,7 @@ export async function run(): Promise<void> {
       }
 
       // Set optional flags from inputs
-      setEnvVarsFlags(deployCmd, envVars, envVarsFile, envVarsUpdateStrategy);
+      setEnvVarsFlags(deployCmd, envVars, envVarsUpdateStrategy);
       setSecretsFlags(deployCmd, secrets, secretsUpdateStrategy);
 
       if (tag) {
@@ -411,8 +399,8 @@ async function computeGcloudVersion(str: string): Promise<string> {
   return str;
 }
 
-function setEnvVarsFlags(cmd: string[], envVars: string, envVarsFile: string, strategy: string) {
-  const compiledEnvVars = parseKVStringAndFile(envVars, envVarsFile);
+function setEnvVarsFlags(cmd: string[], envVars: string, strategy: string) {
+  const compiledEnvVars = parseKVStringAndFile(envVars);
   if (compiledEnvVars && Object.keys(compiledEnvVars).length > 0) {
     let flag = '';
     if (strategy === 'overwrite') {

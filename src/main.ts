@@ -211,6 +211,10 @@ export async function run(): Promise<void> {
         deployCmd.push('--labels', joinKVStringForGCloud(compiledLabels));
       }
     } else if (workerPool) {
+      logWarning(
+        `Support for Cloud Run worker pools in this GitHub Action is in beta and is ` +
+          `not covered by the semver backwards compatibility guarantee.`,
+      );
       deployCmd = ['run', 'worker-pools', 'deploy', workerPool];
 
       if (image) {

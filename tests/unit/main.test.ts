@@ -550,18 +550,19 @@ test('#run', { concurrency: true }, async (suite) => {
 
   await suite.test('deploys a worker pool if worker_pool is specified', async (t) => {
     const mocks = defaultMocks(t.mock, {
-      worker_pool: 'my-worker-pool',
+      worker_pool: 'my-test-worker-pool',
+      gcloud_component: 'beta',
     });
 
     await run();
 
     const args = mocks.getExecOutput.mock.calls?.at(0)?.arguments?.at(1);
-    assertMembers(args, ['run', 'worker-pools', 'deploy', 'my-worker-pool']);
+    assertMembers(args, ['beta', 'run', 'worker-pools', 'deploy', 'my-test-worker-pool']);
   });
 
   await suite.test('deploys a worker pool with --image', async (t) => {
     const mocks = defaultMocks(t.mock, {
-      worker_pool: 'my-worker-pool',
+      worker_pool: 'my-test-worker-pool',
       image: 'us-docker.pkg.dev/cloudrun/container/worker-pool:latest',
     });
 
@@ -573,7 +574,7 @@ test('#run', { concurrency: true }, async (suite) => {
 
   await suite.test('deploys a worker pool with --source', async (t) => {
     const mocks = defaultMocks(t.mock, {
-      worker_pool: 'my-worker-pool',
+      worker_pool: 'my-test-worker-pool',
       source: 'worker-source',
       image: '',
     });
@@ -586,7 +587,7 @@ test('#run', { concurrency: true }, async (suite) => {
 
   await suite.test('sets labels for worker pool', async (t) => {
     const mocks = defaultMocks(t.mock, {
-      worker_pool: 'my-worker-pool',
+      worker_pool: 'my-test-worker-pool',
       labels: 'foo=bar,zip=zap',
     });
 
@@ -615,6 +616,20 @@ test('#run', { concurrency: true }, async (suite) => {
 
     const args = mocks.getExecOutput.mock.calls?.at(0)?.arguments?.at(1);
     assertMembers(args, ['worker-pools', 'replace']);
+  });
+
+  await suite.test('fails if worker_pool and service are both specified', async (t) => {
+    defaultMocks(t.mock, {
+      service: 'my-test-service',
+      worker_pool: 'my-test-worker-pool',
+    });
+
+    await assert.rejects( async () => await run(),
+      {
+        message:
+          /google-github-actions\/deploy-cloudrun failed with: only one of `service`, `job`, or `worker_pool` inputs can be set./,
+      },
+    );
   });
 });
 

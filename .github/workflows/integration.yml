@@ -349,7 +349,7 @@ jobs:
         uses: './'
         with:
           image: 'us-docker.pkg.dev/cloudrun/container/worker-pool:latest'
-          gcloud_component: beta
+          gcloud_component: 'beta'
           worker_pool: '${{ env.WORKER_POOL_NAME }}'
           env_vars: |-
             FOO=bar
@@ -389,7 +389,7 @@ jobs:
         uses: './'
         with:
           image: 'us-docker.pkg.dev/cloudrun/container/worker-pool:latest'
-          gcloud_component: beta
+          gcloud_component: 'beta'
           worker_pool: '${{ env.WORKER_POOL_NAME }}'
           env_vars: |-
             ABC=123

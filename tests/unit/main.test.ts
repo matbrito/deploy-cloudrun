@@ -624,12 +624,10 @@ test('#run', { concurrency: true }, async (suite) => {
       worker_pool: 'my-test-worker-pool',
     });
 
-    await assert.rejects( async () => await run(),
-      {
-        message:
-          /google-github-actions\/deploy-cloudrun failed with: only one of `service`, `job`, or `worker_pool` inputs can be set./,
-      },
-    );
+    await assert.rejects(async () => await run(), {
+      message:
+        /google-github-actions\/deploy-cloudrun failed with: only one of `service`, `job`, or `worker_pool` inputs can be set./,
+    });
   });
 });
 
